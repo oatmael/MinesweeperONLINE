@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Playground</title>
+  <style>
+    .header {
+        width: auto;
+        background-color: lightblue;
+    }
+    .full {
+        display:table;
+        width: 100%;
+    }
+    .left {
+        background-color: navy;
+        display: table-cell;
+        width: 60%;
+        height: 500px;
+    }
+    .right {
+        background-color: fuchsia;
+        display: table-cell;
+        width: 40%;
+        height: 500px;
+        overflow-y: scroll;
+    }
+    input {
+        width: 20px;
+    }
+
+  </style>
+</head>
+<body>
+    <div class="header">
+        <a>Number of Mines: </a>
+        <input type="text" id="numMines" value="20"/>
+        <a>Width: </a>
+        <input type="text" id="width" value="10"/>
+        <a>Height: </a>
+        <input type="text" id="height" value="10"/>
+        <button onClick="newGame()">New Game</button>
+    </div>
+    <div class="full">
+        <div class="left" id="game">
+
+        </div>
+        <div class="right" id="log">
+
+        </div>
+    </div>
+</body>
+<script>
+
+var logDiv = document.getElementById("log");
+var gameDiv = document.getElementById("game");
+
+const uid = randomNo(999);
+
+const names = [
+
+];
+
+const ws = new WebSocket('ws://localhost:9898/');
+ws.onopen = function() {
+    console.log('WebSocket Client Connected');
+    ws.send(JSON.stringify({"message":"connect", "value":uid}));
+};
+ws.onmessage = function(e) {
+  console.log("Received: '" + e.data + "'");
+  
+  var jsonMessage = JSON.parse(e.data);
+  
+  switch (jsonMessage.message) {
+    case "gameBoard":
+        drawGameBoard(jsonMessage.value);
+        break;
+    default:
+        logDiv.innerHTML += "<a>" 
+            + jsonMessage.message + ":" 
+            + jsonMessage.value +"</a><br/>";
+  }
+  
+};
+
+function drawGameBoard(board){
+    var innerHTMLstring = "";
+
+    innerHTMLstring += "<table>";
+    for (var y = 0; y < board.length; y++){
+        innerHTMLstring += "<tr>";
+        for (var x = 0; x < board[0].length; x++){
+            innerHTMLstring += "<td>";
+            var display;
+            switch (board[y][x]){
+                case -1:
+                    display = "";
+                    break;
+                case -2:
+                    display = "💣";
+                    break;
+                default:
+                    display = board[y][x];
+            }
+            
+            innerHTMLstring += "<button onClick='cellPress(" + x + "," + y + ")'>" + display + "</button>";
+            innerHTMLstring += "</td>";
+        }
+        innerHTMLstring += "<tr>";
+    }
+    innerHTMLstring += "</table>";
+    gameDiv.innerHTML = innerHTMLstring;
+}
+
+function randomNo(length){
+    return Math.floor(Math.random() * length);
+}
+
+function newGame(){
+    var numMines = document.getElementById("numMines").value;
+    var width = document.getElementById("width").value;
+    var height = document.getElementById("height").value;
+    ws.send(JSON.stringify({
+        "message":"newGame",
+        "numMines":numMines,
+        "width":width,
+        "height":height
+    }));
+}
+
+function cellPress(x,y) {
+    ws.send(JSON.stringify({
+        "message":"revealTile",
+        "x":x,
+        "y":y
+    }));
+}
+
+</script>
+</html>

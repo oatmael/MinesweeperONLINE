@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  express:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodejs
+    ports:
+      - 80:80
+      - 9898:9898
+    volumes:
+      - ./:/express
+      - /node_modules
+

@@ -1,0 +1,22 @@
+{
+    "name": "nodejs-app",
+    "version": "1.0.0",
+    "description": "node js server",
+    "author": {
+        "name": "ya boi skinny penis"
+    },
+    "license": "MIT",
+
+    "dependencies": {
+        "express": "^4.16.4",
+        "websocket": "^1.0.0"
+    },
+    "devDependencies": {
+        "nodemon": "^1.19.2"
+    },
+
+    "main": "app.js",
+    "scripts":{
+        "start": "node app.js"
+    }
+}
