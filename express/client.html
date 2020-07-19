@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WebSocket Playground</title>
+  <title>Minesweeper</title>
   <style>
     .header {
         width: auto;
         background-color: lightblue;
+        padding: 10;
     }
     .full {
         display:table;
         width: 100%;
+        height: 500px;
     }
     .left {
         background-color: navy;
         display: table-cell;
         width: 60%;
-        height: 500px;
+        height: 100%;
     }
     .right {
         background-color: fuchsia;
         display: table-cell;
         width: 40%;
-        height: 500px;
-        overflow-y: scroll;
+        height: 100%;
+        position: relative;
+        overflow: auto;
+        padding: 10;
     }
-    input {
+    input.game {
         width: 20px;
     }
 
@@ -33,12 +37,14 @@
 <body>
     <div class="header">
         <a>Number of Mines: </a>
-        <input type="text" id="numMines" value="20"/>
+        <input type="text" id="numMines" value="20" class="game"/>
         <a>Width: </a>
-        <input type="text" id="width" value="10"/>
+        <input type="text" id="width" value="10" class="game"/>
         <a>Height: </a>
-        <input type="text" id="height" value="10"/>
+        <input type="text" id="height" value="10" class="game"/>
         <button onClick="newGame()">New Game</button>
+        <input id="chat" type="text" width="100px"/>
+        <button onClick="chat()">Chat</button>
     </div>
     <div class="full">
         <div class="left" id="game">
@@ -54,11 +60,8 @@
 var logDiv = document.getElementById("log");
 var gameDiv = document.getElementById("game");
 
-const uid = randomNo(999);
-
-const names = [
-
-];
+//const uid = randomNo(999);
+var uid = prompt("Enter your name");
 
 const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
@@ -75,9 +78,15 @@ ws.onmessage = function(e) {
         drawGameBoard(jsonMessage.value);
         break;
     default:
-        logDiv.innerHTML += "<a>" 
+        var date = new Date().toUTCString();
+        logDiv.innerHTML = 
+            //date
+            //+ "<a> " 
+            "<a> " 
             + jsonMessage.message + ":" 
-            + jsonMessage.value +"</a><br/>";
+            + jsonMessage.value 
+            + "</a><br/>"
+            + logDiv.innerHTML;
   }
   
 };
@@ -86,12 +95,12 @@ function drawGameBoard(board){
     var innerHTMLstring = "";
 
     innerHTMLstring += "<table>";
-    for (var y = 0; y < board.length; y++){
+    for (var y = 0; y < board.height; y++){
         innerHTMLstring += "<tr>";
-        for (var x = 0; x < board[0].length; x++){
+        for (var x = 0; x < board.width; x++){
             innerHTMLstring += "<td>";
             var display;
-            switch (board[y][x]){
+            switch (board.grid[y][x]){
                 case -1:
                     display = "";
                     break;
@@ -99,7 +108,7 @@ function drawGameBoard(board){
                     display = "💣";
                     break;
                 default:
-                    display = board[y][x];
+                    display = board.grid[y][x];
             }
             
             innerHTMLstring += "<button onClick='cellPress(" + x + "," + y + ")'>" + display + "</button>";
@@ -131,7 +140,17 @@ function cellPress(x,y) {
     ws.send(JSON.stringify({
         "message":"revealTile",
         "x":x,
-        "y":y
+        "y":y,
+        "uid":uid
+    }));
+}
+
+function chat(){
+    var text = document.getElementById('chat').value;
+    ws.send(JSON.stringify({
+        "message":"chat",
+        "uid":uid,
+        "value":text
     }));
 }
 
