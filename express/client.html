@@ -5,8 +5,15 @@
   <style>
     .header {
         width: auto;
-        background-color: lightblue;
+        background-color: deepskyblue;
         padding: 10px;
+        border-bottom: 5px dodgerblue;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        text-shadow: white 0px 0px 2px,   white 0px 0px 2px,   white 0px 0px 2px,
+        white 0px 0px 2px,   white 0px 0px 2px,   white 0px 0px 2px;
+        -webkit-font-smoothing: antialiased;
+        /*-webkit-text-stroke: 0.5px white;*/
     }
     .full {
         display:table;
@@ -14,22 +21,38 @@
         height: 500px;
     }
     .left {
-        background-color: navy;
+        background-color: linen;
         display: table-cell;
         width: 60%;
         height: 100%;
     }
     .right {
-        background-color: fuchsia;
+        background-color: lightskyblue;
+        border-left: 5px dodgerblue;
         display: table-cell;
         width: 40%;
         height: 100%;
         position: relative;
         overflow: auto;
-        padding: 10;
+        padding: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        /*-webkit-text-stroke: 0.5px white;*/
+        text-shadow: white 0px 0px 1px,   white 0px 0px 1px,   white 0px 0px 1px,
+        white 0px 0px 1px,   white 0px 0px 1px,   white 0px 0px 1px;
+        -webkit-font-smoothing: antialiased;
     }
     input.game {
         width: 20px;
+    }
+    .gameButton {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        font-weight: bold;
+        text-shadow: white 0px 0px 1px,   white 0px 0px 1px,   white 0px 0px 1px,
+        white 0px 0px 1px,   white 0px 0px 1px,   white 0px 0px 1px;
+        -webkit-font-smoothing: antialiased;
     }
 
   </style>
@@ -63,7 +86,9 @@ var gameDiv = document.getElementById("game");
 //const uid = randomNo(999);
 var uid = prompt("Enter your name");
 
-const ws = new WebSocket('ws://localhost:9898/');
+
+//const ws = new WebSocket('ws://localhost:9898/');
+const ws = new WebSocket('ws://minesweeperonline.ga:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
     ws.send(JSON.stringify({"message":"connect", "value":uid}));
@@ -78,10 +103,7 @@ ws.onmessage = function(e) {
         drawGameBoard(jsonMessage.value);
         break;
     default:
-        var date = new Date().toUTCString();
         logDiv.innerHTML = 
-            //date
-            //+ "<a> " 
             "<a> " 
             + jsonMessage.message + ":" 
             + jsonMessage.value 
@@ -100,18 +122,57 @@ function drawGameBoard(board){
         for (var x = 0; x < board.width; x++){
             innerHTMLstring += "<td>";
             var display;
+            var style;
             switch (board.grid[y][x]){
                 case -1:
                     display = "😶";
+                    style = '#D5D5D5';
                     break;
                 case -2:
                     display = "💣";
+                    style = '#7540BF';
+                    break;
+                case 0:
+                    display = board.grid[y][x];
+                    style = '#A6D175';
+                    break;
+                case 1:
+                    display = board.grid[y][x];
+                    style = '#B4C144';
+                    break;
+                case 2:
+                    display = board.grid[y][x];
+                    style = '#BFBB40';
+                    break;
+                case 3:
+                    display = board.grid[y][x];
+                    style = '#B49E3C';
+                    break;
+                case 4:
+                    display = board.grid[y][x];
+                    style = '#B4903C';
+                    break;
+                case 5:
+                    display = board.grid[y][x];
+                    style = '#B0713B';
+                    break;
+                case 6:
+                    display = board.grid[y][x];
+                    style = '#B4583C';
+                    break;
+                case 7:
+                    display = board.grid[y][x];
+                    stlye = '#A84138';
+                    break;
+                case 8:
+                    display = board.grid[y][x];
+                    style = '#6F3125';
                     break;
                 default:
                     display = board.grid[y][x];
             }
             
-            innerHTMLstring += "<button onClick='cellPress(" + x + "," + y + ")'>" + display + "</button>";
+            innerHTMLstring += "<button style='background-color: " + style + "' class='gameButton' onClick='cellPress(" + x + "," + y + ")'>" + display + "</button>";
             innerHTMLstring += "</td>";
         }
         innerHTMLstring += "<tr>";

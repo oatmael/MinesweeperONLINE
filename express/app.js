@@ -132,13 +132,13 @@ function revealTile(x,y,uid){
         let numMines = 0;
         for (let j = Math.max(y-1, 0); j <= Math.min(y+1, board.height - 1); j++){
             for (let i = Math.max(x-1, 0); i <= Math.min(x+1, board.width - 1); i++){
-                console.log("Checking position: " + i + "," + j + " for mines")
+                //console.log("Checking position: " + i + "," + j + " for mines")
                 if (board.grid[j][i] === 1){
                     numMines++;
                 } 
             }
         }
-        console.log("Mines revealed: " + numMines);
+        //console.log("Mines revealed: " + numMines);
         visibleBoard.grid[y][x] = numMines;
         //console.log("tile revealed: " + x + "," + y + ": " + numMines);
         broadcast({
