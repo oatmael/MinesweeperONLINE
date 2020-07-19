@@ -24,6 +24,7 @@ app.listen(port, () => {
 
 // Node.js WebSocket server script
 const http = require('http');
+const e = require("express");
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
 server.listen(9898);
@@ -62,6 +63,13 @@ wsServer.on('request', function(request) {
         case "revealTile":
             revealTile(jsonMessage.x, jsonMessage.y, jsonMessage.uid);
             break;
+        case "markBomb":
+            markBomb(jsonMessage.x, jsonMessage.y, jsonMessage.uid);
+            broadcast({
+                "message":"gameBoard",
+                "value":visibleBoard
+            });
+            break;
         case "chat":
             broadcast({
                 "message":jsonMessage.uid,
@@ -82,6 +90,7 @@ wsServer.on('request', function(request) {
 });
 
 let lost = false;
+let won = false;
 let board = {
     "width":0,
     "height":0,
@@ -92,10 +101,18 @@ let visibleBoard = {
     "width":0,
     "height":0,
     "mines":0,
-    "grid": []
+    "grid": [],
+    "won":false
 };
 
 function generateGameBoard(numMines, width, height){
+    lost = false;
+    won = false;
+
+    if (numMines < 0 || numMines > (width * height)){
+        numMines = width * height;
+    }
+
     board.grid = new Array(Number(height)).fill(0).map(()=>new Array(Number(width)).fill(0));
     visibleBoard.grid = new Array(Number(height)).fill(-1).map(()=>new Array(Number(width)).fill(-1));
 
@@ -105,6 +122,7 @@ function generateGameBoard(numMines, width, height){
     visibleBoard.height = Number(height);
     board.mines = numMines;
     visibleBoard.mines = numMines;
+    visibleBoard.won = false;
     
 
     for (let i = 0; i < numMines; i++){
@@ -125,8 +143,7 @@ function revealTile(x,y,uid){
     x = Number(x);
     y = Number(y);
     
-    if (board.grid[y][x] === 1){
-        lost = true;
+    if (board.grid[y][x] === 1 && visibleBoard.grid[y][x] !== -3){
         loseGame();
     } else if (visibleBoard.grid[y][x] === -1) {
         let numMines = 0;
@@ -156,23 +173,74 @@ function revealTile(x,y,uid){
                 }
             }
         } else {
+            if (visibleBoard.mines === 0){
+                checkWinGame();
+            }
             return;
+        }
+        
+    }
+}
+
+function markBomb(x,y,uid){
+    if (visibleBoard.grid[y][x] === -1) {
+        visibleBoard.mines--;
+        visibleBoard.grid[y][x] = -3;
+
+        broadcast({
+            "message":"User " + uid + " Marked Tile: ",
+            "value":x + "," + y
+        });
+
+        checkWinGame();
+    } else if (visibleBoard.grid[y][x] === -3 && !won) {
+        visibleBoard.mines++;
+        visibleBoard.grid[y][x] = -1;
+
+        broadcast({
+            "message":"User " + uid + " Unmarked Tile: ",
+            "value":x + "," + y
+        });
+    }
+}
+
+function checkWinGame(){
+    if (!lost) {
+        if (!visibleBoard.grid.some(row => row.includes(-1))){
+            won = true;
+            visibleBoard.won = true;
+            broadcast({
+                "message":"gameWin",
+                "value":"You've won the game!"
+            });
+            broadcast({
+                "message":"gameBoard",
+                "value":visibleBoard
+            });
         }
     }
 }
 
 function loseGame(){
-    for (let y = 0; y < board.height; y++){
-        for (let x = 0; x < board.width; x++){
-            if (board.grid[y][x] === 1){
-                visibleBoard.grid[y][x] = -2;
+    if (!lost){
+        for (let y = 0; y < board.height; y++){
+            for (let x = 0; x < board.width; x++){
+                if (board.grid[y][x] === 1){
+                    visibleBoard.grid[y][x] = -2;
+                }
             }
         }
+        broadcast({
+            "message":"gameBoard",
+            "value":visibleBoard
+        });
+        broadcast({
+            "message":"gameLoss",
+            "value":"You've lost the game!"
+        });
     }
-    broadcast({
-        "message":"gameBoard",
-        "value":visibleBoard
-    });
+    
+    lost = true;
 }
 
 function broadcast(jsonToSend) {

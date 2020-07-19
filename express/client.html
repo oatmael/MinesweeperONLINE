@@ -85,10 +85,10 @@ var gameDiv = document.getElementById("game");
 
 //const uid = randomNo(999);
 var uid = prompt("Enter your name");
+var won = false;
 
-
-//const ws = new WebSocket('ws://localhost:9898/');
-const ws = new WebSocket('ws://minesweeperonline.ga:9898/');
+const ws = new WebSocket('ws://localhost:9898/');
+//const ws = new WebSocket('ws://minesweeperonline.ga:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
     ws.send(JSON.stringify({"message":"connect", "value":uid}));
@@ -100,6 +100,7 @@ ws.onmessage = function(e) {
   
   switch (jsonMessage.message) {
     case "gameBoard":
+        won = false;
         drawGameBoard(jsonMessage.value);
         break;
     default:
@@ -115,6 +116,9 @@ ws.onmessage = function(e) {
 
 function drawGameBoard(board){
     var innerHTMLstring = "";
+    lastBoardState = board;
+
+    innerHTMLstring += "<a class='gameButton'>Number of mines remaining: " + board.mines + "</a><br/>";
 
     innerHTMLstring += "<table>";
     for (var y = 0; y < board.height; y++){
@@ -131,6 +135,14 @@ function drawGameBoard(board){
                 case -2:
                     display = "💣";
                     style = '#7540BF';
+                    break;
+                case -3:
+                    if (board.won){
+                        display = "🎉";
+                    } else {
+                        display = "😮";
+                    }
+                    style = "#37A49A";
                     break;
                 case 0:
                     display = board.grid[y][x];
@@ -172,7 +184,11 @@ function drawGameBoard(board){
                     display = board.grid[y][x];
             }
             
-            innerHTMLstring += "<button style='background-color: " + style + "' class='gameButton' onClick='cellPress(" + x + "," + y + ")'>" + display + "</button>";
+            innerHTMLstring += 
+            "<button style='background-color: " + style + 
+            "' class='gameButton' onClick='cellPress(" + x + "," + y + ")' " + 
+            "oncontextmenu='markBomb(" + x + "," + y + ");return false;'" + ">" 
+            + display + "</button>";
             innerHTMLstring += "</td>";
         }
         innerHTMLstring += "<tr>";
@@ -213,6 +229,17 @@ function chat(){
         "uid":uid,
         "value":text
     }));
+}
+
+function markBomb(x,y){
+    ws.send(JSON.stringify({
+        "message":"markBomb",
+        "uid":uid,
+        "x":x,
+        "y":y
+    }));
+
+    return false;
 }
 
 </script>
