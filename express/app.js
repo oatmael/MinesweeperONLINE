@@ -86,6 +86,10 @@ wsServer.on('request', function(request) {
 
     connection.on('close', function(reasonCode, description) {
         console.log('Client has disconnected.');
+        broadcast({
+            "message":"userDisconnect",
+            "value":" a client disconnected"
+        });
     });
 });
 
@@ -105,9 +109,13 @@ let visibleBoard = {
     "won":false
 };
 
-function generateGameBoard(numMines, width, height){
+function generateGameBoard(numMines, width, height, uid){
     lost = false;
     won = false;
+
+    if (isNaN(numMines) || isNaN(width) || isNaN(height)){
+        return;
+    }
 
     if (numMines < 0 || numMines > (width * height)){
         numMines = width * height;
@@ -135,9 +143,13 @@ function generateGameBoard(numMines, width, height){
         }
     }
 
+    broadcast({
+        "message":"User " + uid + " Created New Game: ",
+        "value":width + " * " + height + ", " + numMines + " mines"
+    });
     console.log(board);
 }
-generateGameBoard(20, 10, 10);
+generateGameBoard(20, 10, 10, "system");
 
 function revealTile(x,y,uid){
     x = Number(x);

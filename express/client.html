@@ -93,6 +93,12 @@ ws.onopen = function() {
     console.log('WebSocket Client Connected');
     ws.send(JSON.stringify({"message":"connect", "value":uid}));
 };
+
+ws.onclose = function() {
+    //ws = new WebSocket('ws://localhost:9898/');
+    ws = new WebSocket('ws://minesweeperonline.ga:9898/');
+};
+
 ws.onmessage = function(e) {
   console.log("Received: '" + e.data + "'");
   
@@ -207,6 +213,7 @@ function newGame(){
     var height = document.getElementById("height").value;
     ws.send(JSON.stringify({
         "message":"newGame",
+        "uid":uid,
         "numMines":numMines,
         "width":width,
         "height":height
