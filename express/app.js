@@ -121,8 +121,8 @@ function generateGameBoard(numMines, width, height, uid){
         numMines = width * height;
     }
 
-    board.grid = new Array(Number(height)).fill(0).map(()=>new Array(Number(width)).fill(0));
-    visibleBoard.grid = new Array(Number(height)).fill(-1).map(()=>new Array(Number(width)).fill(-1));
+    board.grid = new Array(Math.round(Number(height))).fill(0).map(()=>new Array(Math.round(Number(width))).fill(0));
+    visibleBoard.grid = new Array(Math.round(Number(height))).fill(-1).map(()=>new Array(Math.round(Number(width))).fill(-1));
 
     board.width = Math.round(Number(width));
     visibleBoard.width = Math.round(Number(width));
