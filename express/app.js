@@ -259,7 +259,7 @@ function cleanChars(string) {
     if (!string){
         return;
     }
-    const dirty = /([<>\/])/igm;
+    const dirty = /([<>\/='";])/igm;
     return string.replace(dirty, "");
 }
 
