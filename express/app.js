@@ -72,7 +72,7 @@ wsServer.on('request', function(request) {
             break;
         case "chat":
             broadcast({
-                "message":jsonMessage.uid,
+                "message":cleanChars(jsonMessage.uid),
                 "value":cleanChars(jsonMessage.value)
             });
             break;
@@ -144,7 +144,7 @@ function generateGameBoard(numMines, width, height, uid){
     }
 
     broadcast({
-        "message":"User " + uid + " Created New Game: ",
+        "message":"User " + cleanChars(uid) + " Created New Game: ",
         "value":width + " * " + height + ", " + numMines + " mines"
     });
     console.log(board);
@@ -171,7 +171,7 @@ function revealTile(x,y,uid){
         visibleBoard.grid[y][x] = numMines;
         //console.log("tile revealed: " + x + "," + y + ": " + numMines);
         broadcast({
-            "message":"User " + uid + " Revealed Tile: ",
+            "message":"User " + cleanChars(uid) + " Revealed Tile: ",
             "value":x + "," + y
         });
         broadcast({
@@ -200,7 +200,7 @@ function markBomb(x,y,uid){
         visibleBoard.grid[y][x] = -3;
 
         broadcast({
-            "message":"User " + uid + " Marked Tile: ",
+            "message":"User " + cleanChars(uid) + " Marked Tile: ",
             "value":x + "," + y
         });
 
@@ -210,7 +210,7 @@ function markBomb(x,y,uid){
         visibleBoard.grid[y][x] = -1;
 
         broadcast({
-            "message":"User " + uid + " Unmarked Tile: ",
+            "message":"User " + cleanChars(uid) + " Unmarked Tile: ",
             "value":x + "," + y
         });
     }
