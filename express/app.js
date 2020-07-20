@@ -54,7 +54,7 @@ wsServer.on('request', function(request) {
             }));
             break;
         case "newGame":
-            generateGameBoard(jsonMessage.numMines, jsonMessage.width, jsonMessage.height);
+            generateGameBoard(jsonMessage.numMines, jsonMessage.width, jsonMessage.height, jsonMessage.uid);
             broadcast({
                 "message":"gameBoard",
                 "value":visibleBoard
