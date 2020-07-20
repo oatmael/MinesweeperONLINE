@@ -44,9 +44,10 @@ wsServer.on('request', function(request) {
     
       switch (jsonMessage.message) {
         case "connect":
+            chat(jsonMessage);
             broadcast({
                 "message":"clientConnected",
-                "value":jsonMessage.value,
+                "value":cleanChars(jsonMessage.value)
             });
             connection.sendUTF(JSON.stringify({
                 "message":"gameBoard",
@@ -73,7 +74,7 @@ wsServer.on('request', function(request) {
         case "chat":
             broadcast({
                 "message":jsonMessage.uid,
-                "value":jsonMessage.value
+                "value":cleanChars(jsonMessage.value)
             });
             break;
         default:
@@ -124,12 +125,12 @@ function generateGameBoard(numMines, width, height, uid){
     board.grid = new Array(Number(height)).fill(0).map(()=>new Array(Number(width)).fill(0));
     visibleBoard.grid = new Array(Number(height)).fill(-1).map(()=>new Array(Number(width)).fill(-1));
 
-    board.width = Number(width);
-    visibleBoard.width = Number(width);
-    board.height = Number(height);
-    visibleBoard.height = Number(height);
-    board.mines = numMines;
-    visibleBoard.mines = numMines;
+    board.width = Math.round(Number(width));
+    visibleBoard.width = Math.round(Number(width));
+    board.height = Math.round(Number(height));
+    visibleBoard.height = Math.round(Number(height));
+    board.mines = Math.round(numMines);
+    visibleBoard.mines = Math.round(numMines);
     visibleBoard.won = false;
     
 
@@ -253,6 +254,11 @@ function loseGame(){
     }
     
     lost = true;
+}
+
+function cleanChars(string) {
+    const dirty = /([<>\/])/igm;
+    return string.replace(dirty, "");
 }
 
 function broadcast(jsonToSend) {
