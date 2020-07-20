@@ -44,7 +44,6 @@ wsServer.on('request', function(request) {
     
       switch (jsonMessage.message) {
         case "connect":
-            chat(jsonMessage);
             broadcast({
                 "message":"clientConnected",
                 "value":cleanChars(jsonMessage.value)
