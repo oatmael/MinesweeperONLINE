@@ -117,6 +117,20 @@ function generateGameBoard(numMines, width, height, uid){
         return;
     }
 
+    if (width > 100){
+        width = 100;
+    }
+    if (height > 100){
+        height = 100;
+    }
+
+    if (width <= 0){
+        width = 1;
+    }
+    if (height <= 0){
+        height = 1;
+    }
+
     if (numMines < 0 || numMines > (width * height)){
         numMines = width * height;
     }
@@ -259,7 +273,7 @@ function cleanChars(string) {
     if (!string){
         return;
     }
-    const dirty = /([<>\/='";])/igm;
+    const dirty = /([<>\/='";.])/igm;
     return string.replace(dirty, "");
 }
 
